@@ -12,52 +12,45 @@
       font-family: 'Garamond', serif;
       color: #3b2f2f;
     }
-
     .card img {
       height: 200px;
       object-fit: cover;
       border: 2px solid #8b5c2c;
+      cursor: pointer;
     }
-
     .navbar {
       background-image: linear-gradient(to right, #4b2e83, #6f42c1);
       border-bottom: 3px solid #c6a664;
     }
-
     .navbar-brand, .nav-link, .nav-link:focus, .nav-link:hover {
       color: #fff3d1;
       font-weight: bold;
     }
-
     .btn-primary {
       background-color: #6f42c1;
       border: none;
     }
-
     .btn-primary:hover {
       background-color: #563d7c;
     }
-
     .btn-danger {
       background-color: #b03a2e;
       border: none;
     }
-
     .btn-danger:hover {
       background-color: #922b21;
     }
-
     .btn-success {
       background-color: #2e8b57;
       border: none;
     }
-
     .btn-success:hover {
       background-color: #276749;
     }
-
-    .alert {
-      margin-top: 1rem;
+    footer {
+      text-align: center;
+      margin: 2rem 0;
+      color: #6b584c;
     }
   </style>
 </head>
@@ -65,32 +58,14 @@
   <nav class="navbar navbar-expand-lg">
     <div class="container d-flex align-items-center">
       <a class="navbar-brand" href="#">Miniature Fantasy</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="#products">Miniature</a></li>
-          <li class="nav-item"><a class="nav-link" href="#cart">Carrello</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#checkoutModal">Vai al Checkout</a></li>
-        </ul>
-      </div>
     </div>
   </nav>
 
-  <div class="container mt-5" id="products">
+  <main class="container mt-5" id="products-section">
     <h2 class="text-center mb-4">Miniature in Vendita</h2>
     <div class="d-flex justify-content-end mb-3">
       <label for="sortSelect" class="me-2 align-self-center">Ordina per:</label>
-      <select class="form-select w-auto" id="sortSelect">
+      <select class="form-select w-auto" id="sortSelect" aria-label="Seleziona criterio di ordinamento">
         <option value="default">Predefinito</option>
         <option value="priceAsc">Prezzo crescente</option>
         <option value="priceDesc">Prezzo decrescente</option>
@@ -98,16 +73,19 @@
         <option value="nameDesc">Nome Z-A</option>
       </select>
     </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4" id="miniature-cards"></div>
-  </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="product-cards"></div>
+  </main>
 
-  <div class="container mt-5" id="cart">
+  <section class="container mt-5" id="cart-section">
     <h2>Carrello</h2>
-    <ul class="list-group mb-3" id="cart-items"></ul>
+    <ul class="list-group mb-3" id="cart-items" aria-live="polite" aria-relevant="additions removals"></ul>
     <h4>Totale: €<span id="cart-total">0.00</span></h4>
-  </div>
+    <button class="btn btn-success mt-3 w-100" id="checkoutBtn" data-bs-toggle="modal" data-bs-target="#checkoutModal" aria-label="Vai al checkout">
+      Vai al Checkout
+    </button>
+  </section>
 
-  <!-- Modal Checkout -->
+  <!-- Modal checkout -->
   <div
     class="modal fade"
     id="checkoutModal"
@@ -127,53 +105,66 @@
           ></button>
         </div>
         <div class="modal-body">
-          <form id="checkout-form">
+          <form id="checkout-form" novalidate>
             <div class="mb-3">
-              <label class="form-label">Nome</label>
-              <input type="text" class="form-control" name="nome" required />
+              <label for="nome" class="form-label">Nome</label>
+              <input type="text" class="form-control" id="nome" name="nome" required />
+              <div class="invalid-feedback">Inserisci il nome.</div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Cognome</label>
-              <input type="text" class="form-control" name="cognome" required />
+              <label for="cognome" class="form-label">Cognome</label>
+              <input type="text" class="form-control" id="cognome" name="cognome" required />
+              <div class="invalid-feedback">Inserisci il cognome.</div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Indirizzo</label>
-              <input type="text" class="form-control" name="indirizzo" required />
+              <label for="indirizzo" class="form-label">Indirizzo</label>
+              <input type="text" class="form-control" id="indirizzo" name="indirizzo" required />
+              <div class="invalid-feedback">Inserisci l'indirizzo.</div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Numero Carta di Credito</label>
+              <label for="numeroCarta" class="form-label">Numero Carta di Credito</label>
               <input
                 type="text"
                 class="form-control"
+                id="numeroCarta"
                 name="numeroCarta"
-                pattern="\d{13,19}"
-                title="Inserisci un numero di carta valido (13-19 cifre)"
+                pattern="\\d{13,19}"
                 maxlength="19"
                 required
+                inputmode="numeric"
+                autocomplete="cc-number"
+                aria-describedby="numeroCartaHelp"
               />
+              <div class="invalid-feedback">Inserisci un numero di carta valido (13-19 cifre).</div>
+              <div id="numeroCartaHelp" class="form-text">Solo cifre, senza spazi o trattini.</div>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Data Scadenza</label>
+                <label for="scadenzaCarta" class="form-label">Data Scadenza</label>
                 <input
                   type="month"
                   class="form-control"
-                  name="scadenzaCarta"
                   id="scadenzaCarta"
+                  name="scadenzaCarta"
                   required
+                  aria-describedby="scadenzaFeedback"
                 />
+                <div class="invalid-feedback" id="scadenzaFeedback">Inserisci una data di scadenza valida (non scaduta).</div>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">CVV</label>
+                <label for="cvv" class="form-label">CVV</label>
                 <input
                   type="text"
                   class="form-control"
+                  id="cvv"
                   name="cvv"
-                  pattern="\d{3,4}"
-                  title="Inserisci un CVV valido (3 o 4 cifre)"
+                  pattern="\\d{3,4}"
                   maxlength="4"
                   required
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
                 />
+                <div class="invalid-feedback">Inserisci un CVV valido (3 o 4 cifre).</div>
               </div>
             </div>
             <div class="form-check mb-3">
@@ -186,25 +177,21 @@
               <label class="form-check-label" for="accettaTermini">
                 Accetto i <a href="#">termini e condizioni</a>
               </label>
+              <div class="invalid-feedback">Devi accettare i termini e condizioni.</div>
             </div>
             <button type="submit" class="btn btn-success w-100">Completa Ordine</button>
           </form>
-          <div id="checkout-message"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <footer class="mt-5">
+  <footer>
     Miniature Fantasy © 2025 - Tutti i diritti riservati
   </footer>
 
-  <div id="modals-container"></div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const cart = [];
-
     const products = [
       {
         name: "Cleric Valorosa",
@@ -250,130 +237,175 @@
       },
     ];
 
-    function createCard(product, index) {
-      const card = document.createElement("div");
-      card.className = "card shadow-sm";
-      card.style.border = "2px solid #8b5c2c";
+    let cart = [];
 
-      card.innerHTML = `
-        <img src="${product.img}" class="card-img-top" alt="${product.name}" />
-        <div class="card-body">
-          <h5 class="card-title">${product.name}</h5>
-          <p class="card-text">${product.description}</p>
-          <p class="card-text fw-bold">Prezzo: €${product.price.toFixed(2)}</p>
-          <button class="btn btn-primary w-100" data-index="${index}">Aggiungi al carrello</button>
-        </div>
-      `;
+    const productContainer = document.getElementById("product-cards");
+    const cartItems = document.getElementById("cart-items");
+    const cartTotal = document.getElementById("cart-total");
+    const sortSelect = document.getElementById("sortSelect");
+    const checkoutForm = document.getElementById("checkout-form");
+    const scadenzaInput = document.getElementById("scadenzaCarta");
 
-      card.querySelector("button").addEventListener("click", () => {
-        cart.push(product);
-        updateCart();
+    // Funzione per caricare i prodotti
+    function loadProducts(list) {
+      productContainer.innerHTML = "";
+      list.forEach((product, index) => {
+        const cardCol = document.createElement("div");
+        cardCol.className = "col";
+
+        const card = document.createElement("div");
+        card.className = "card shadow-sm";
+        card.style.border = "2px solid #8b5c2c";
+
+        card.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" class="card-img-top" tabindex="0" />
+          <div class="card-body">
+            <h5 class="card-title">${product.name}</h5>
+            <p class="card-text">${product.description}</p>
+            <p class="card-text fw-bold">Prezzo: €${product.price.toFixed(2)}</p>
+            <button class="btn btn-primary w-100" aria-label="Aggiungi ${product.name} al carrello">Aggiungi al carrello</button>
+          </div>
+        `;
+
+        // Popup dettagli prodotto cliccando immagine o con Invio da tastiera
+        const img = card.querySelector("img");
+        img.addEventListener("click", () => {
+          alert(
+            `${product.name}\n\n${product.description}\nPrezzo: €${product.price.toFixed(2)}`
+          );
+        });
+        img.addEventListener("keypress", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            img.click();
+          }
+        });
+
+        // Aggiungi al carrello
+        card.querySelector("button").addEventListener("click", () => {
+          cart.push(product);
+          updateCart();
+        });
+
+        cardCol.appendChild(card);
+        productContainer.appendChild(cardCol);
       });
-
-      // Aggiungo popup info prodotto cliccando sull'immagine
-      card.querySelector("img").style.cursor = "pointer";
-      card.querySelector("img").addEventListener("click", () => {
-        alert(`${product.name}\n\n${product.description}\nPrezzo: €${product.price.toFixed(2)}`);
-      });
-
-      return card;
     }
 
+    // Aggiorna carrello
     function updateCart() {
-      const cartItems = document.getElementById("cart-items");
       cartItems.innerHTML = "";
       cart.forEach((item, index) => {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
         li.innerHTML = `
-          <div>
-            <strong>${item.name}</strong> - €${item.price.toFixed(2)}
-          </div>
-          <button class="btn btn-danger btn-sm" data-index="${index}">Rimuovi</button>
+          <div><strong>${item.name}</strong> - €${item.price.toFixed(2)}</div>
+          <button class="btn btn-danger btn-sm" aria-label="Rimuovi ${item.name} dal carrello">&times;</button>
         `;
+
         li.querySelector("button").addEventListener("click", () => {
           cart.splice(index, 1);
           updateCart();
         });
+
         cartItems.appendChild(li);
       });
 
       const total = cart.reduce((sum, item) => sum + item.price, 0);
-      document.getElementById("cart-total").textContent = total.toFixed(2);
+      cartTotal.textContent = total.toFixed(2);
     }
 
     // Ordinamento prodotti
-    document.getElementById("sortSelect").addEventListener("change", (e) => {
-      const sortType = e.target.value;
-      let sortedProducts = [...products];
-      if (sortType === "priceAsc") {
-        sortedProducts.sort((a, b) => a.price - b.price);
-      } else if (sortType === "priceDesc") {
-        sortedProducts.sort((a, b) => b.price - a.price);
-      } else if (sortType === "nameAsc") {
-        sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (sortType === "nameDesc") {
-        sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+    sortSelect.addEventListener("change", () => {
+      let sorted = [...products];
+      switch (sortSelect.value) {
+        case "priceAsc":
+          sorted.sort((a, b) => a.price - b.price);
+          break;
+        case "priceDesc":
+          sorted.sort((a, b) => b.price - a.price);
+          break;
+        case "nameAsc":
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case "nameDesc":
+          sorted.sort((a, b) => b.name.localeCompare(a.name));
+          break;
       }
-      loadProducts(sortedProducts);
+      loadProducts(sorted);
     });
 
-    function loadProducts(productList) {
-      const container = document.getElementById("miniature-cards");
-      container.innerHTML = "";
-      productList.forEach((product, index) => {
-        container.appendChild(createCard(product, index));
-      });
-    }
-
-    // Validazione data scadenza carta (non accetta date passate)
-    const checkoutForm = document.getElementById("checkout-form");
-    const scadenzaInput = document.getElementById("scadenzaCarta");
-
-    function setMinMonth() {
+    // Imposta minimo per scadenza carta (mese corrente)
+    function setMinExpiration() {
       const now = new Date();
       const year = now.getFullYear();
       let month = now.getMonth() + 1;
       if (month < 10) month = "0" + month;
       scadenzaInput.min = `${year}-${month}`;
     }
-    setMinMonth();
 
+    setMinExpiration();
+
+    // Validazione personalizzata scadenza carta
+    scadenzaInput.addEventListener("input", () => {
+      const val = scadenzaInput.value;
+      if (!val) return;
+      const [year, month] = val.split("-");
+      const now = new Date();
+      const expDate = new Date(year, month - 1);
+      const thisMonth = new Date(now.getFullYear(), now.getMonth());
+      if (expDate < thisMonth) {
+        scadenzaInput.setCustomValidity("La carta è scaduta.");
+      } else {
+        scadenzaInput.setCustomValidity("");
+      }
+    });
+
+    // Gestione submit checkout
     checkoutForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const formData = new FormData(checkoutForm);
-      const expDate = formData.get("scadenzaCarta");
-      const today = new Date();
-      const [year, month] = expDate.split("-");
-      const exp = new Date(year, month - 1);
+      e.stopPropagation();
 
-      if (exp < new Date(today.getFullYear(), today.getMonth())) {
-        alert("La data di scadenza della carta non può essere nel passato.");
+      // Validazione integrata + custom
+      if (!checkoutForm.checkValidity()) {
+        checkoutForm.classList.add("was-validated");
         return;
       }
 
-      if (cart.length === 0) {
-        alert("Il carrello è vuoto!");
+      // Controllo scadenza carta
+      const expVal = scadenzaInput.value;
+      const [year, month] = expVal.split("-");
+      const now = new Date();
+      const expDate = new Date(year, month - 1);
+      const thisMonth = new Date(now.getFullYear(), now.getMonth());
+      if (expDate < thisMonth) {
+        scadenzaInput.setCustomValidity("La carta è scaduta.");
+        checkoutForm.classList.add("was-validated");
         return;
+      } else {
+        scadenzaInput.setCustomValidity("");
       }
 
-      // Qui potresti inviare i dati al server, per ora solo messaggio conferma
-      alert("Ordine completato con successo!\nGrazie per il tuo acquisto.");
-      cart.length = 0;
+      // Se validato tutto
+      alert(
+        `Ordine completato!\nGrazie ${checkoutForm.nome.value} ${checkoutForm.cognome.value} per il tuo acquisto.`
+      );
+
+      // Reset carrello e form
+      cart = [];
       updateCart();
       checkoutForm.reset();
-      const modal = bootstrap.Modal.getInstance(document.getElementById("checkoutModal"));
+      checkoutForm.classList.remove("was-validated");
+      // Chiudi modal Bootstrap
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("checkoutModal")
+      );
       modal.hide();
     });
 
-    // Carico inizialmente i prodotti
+    // Inizializza pagina
     loadProducts(products);
     updateCart();
-  </script>
-</body>
-</html>
-
-    window.onload = init;
   </script>
 </body>
 </html>
