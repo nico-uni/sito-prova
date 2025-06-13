@@ -2,129 +2,452 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Miniature Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Miniature Fantasy Shop</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
     body {
-      background-color: #f4f4f9;
-      color: #333;
-      padding: 20px;
+      background-image: url('https://www.transparenttextures.com/patterns/old-map.png');
+      background-color: #f4efe3;
+      font-family: 'Garamond', serif;
+      color: #3b2f2f;
+      position: relative;
+      padding-bottom: 80px; /* spazio per il bottone checkout fisso */
     }
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      color: #444;
-    }
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .product {
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-    .product img {
-      max-width: 100%;
-      border-radius: 8px;
-    }
-    .product h2 {
-      font-size: 1.2rem;
-      margin: 10px 0;
-    }
-    .product p {
-      margin: 5px 0;
-      color: #888;
-    }
-    .product button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
+
+    .card img {
+      height: 200px;
+      object-fit: cover;
+      border: 2px solid #8b5c2c;
       cursor: pointer;
-      margin-top: 10px;
     }
-    .cart {
-      margin-top: 40px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+    .card-title {
+      cursor: pointer;
     }
-    .cart h2 {
-      margin-bottom: 15px;
+
+    .navbar {
+      background-image: linear-gradient(to right, #4b2e83, #6f42c1);
+      border-bottom: 3px solid #c6a664;
     }
-    .cart ul {
-      list-style: none;
+
+    .navbar-brand, .nav-link, .nav-link:focus, .nav-link:hover {
+      color: #fff3d1;
+      font-weight: bold;
     }
-    .cart li {
-      padding: 5px 0;
+
+    .navbar-logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    footer {
+      background-color: #4b2e83;
+      color: #fdf6e3;
+      padding: 1rem;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .card {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+      background-color: #fffaf0;
+      border: 2px solid #c6a664;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      border-top: 4px double #8b5c2c;
+      padding-top: 10px;
+      text-shadow: 1px 1px #f4f1eb;
+    }
+
+    .btn-primary {
+      background-color: #6f42c1;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #563d7c;
+    }
+
+    .btn-danger {
+      background-color: #b03a2e;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background-color: #922b21;
+    }
+
+    .btn-success {
+      background-color: #2e8b57;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #276749;
+    }
+
+    .alert {
+      margin-top: 1rem;
+    }
+
+    /* Bottone checkout fisso in fondo */
+    #fixed-checkout-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1055; /* sopra modali */
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Miniature Shop</h1>
-  </header>
+  <nav class="navbar navbar-expand-lg">
+    <div class="container d-flex align-items-center">
+      <img src="https://cdn.pixabay.com/photo/2014/04/02/14/10/shield-307214_960_720.png" alt="Logo Fantasy" class="navbar-logo" />
+      <a class="navbar-brand" href="#">Miniature Fantasy</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="#products">Miniature</a></li>
+          <li class="nav-item"><a class="nav-link" href="#cart">Carrello</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#checkoutModal">Vai al Checkout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-  <div class="products">
-    <div class="product">
-      <img src="https://via.placeholder.com/250" alt="Miniatura 1" />
-      <h2>Miniatura Fantasy</h2>
-      <p>€12.99</p>
-      <button onclick="addToCart('Miniatura Fantasy', 12.99)">Aggiungi al carrello</button>
+  <div class="container mt-5" id="products">
+    <h2 class="text-center mb-4">Miniature in Vendita</h2>
+    <div class="d-flex justify-content-end mb-3">
+      <label for="sortSelect" class="me-2 align-self-center">Ordina per:</label>
+      <select class="form-select w-auto" id="sortSelect">
+        <option value="default">Predefinito</option>
+        <option value="priceAsc">Prezzo crescente</option>
+        <option value="priceDesc">Prezzo decrescente</option>
+        <option value="nameAsc">Nome A-Z</option>
+        <option value="nameDesc">Nome Z-A</option>
+      </select>
     </div>
-    <div class="product">
-      <img src="https://via.placeholder.com/250" alt="Miniatura 2" />
-      <h2>Miniatura Sci-Fi</h2>
-      <p>€15.49</p>
-      <button onclick="addToCart('Miniatura Sci-Fi', 15.49)">Aggiungi al carrello</button>
-    </div>
-    <!-- Aggiungi altre miniature qui -->
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="miniature-cards"></div>
   </div>
 
-  <div class="cart">
+  <div class="container mt-5" id="cart">
     <h2>Carrello</h2>
-    <ul id="cart-list"></ul>
-    <p><strong>Totale:</strong> €<span id="total">0.00</span></p>
+    <ul class="list-group mb-3" id="cart-items"></ul>
+    <h4>Totale: €<span id="cart-total">0.00</span></h4>
   </div>
 
+  <!-- Modal Checkout -->
+  <div
+    class="modal fade"
+    id="checkoutModal"
+    tabindex="-1"
+    aria-labelledby="checkoutModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Chiudi"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form id="checkout-form">
+            <div class="mb-3">
+              <label class="form-label">Nome</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Indirizzo</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Carta di Credito</label>
+              <input type="text" class="form-control" required />
+            </div>
+            <div class="form-check mb-3">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="accettaTermini"
+                required
+              />
+              <label class="form-check-label" for="accettaTermini"
+                >Accetto i <a href="#">termini e condizioni</a></label
+              >
+            </div>
+            <button type="submit" class="btn btn-success w-100">Completa Ordine</button>
+          </form>
+          <div id="checkout-message"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenitore modali dinamici per i prodotti -->
+  <div id="modals-container"></div>
+
+  <!-- Bottone checkout fisso -->
+  <button id="fixed-checkout-btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+    Vai al Checkout
+  </button>
+
+  <footer class="mt-5">
+    Miniature Fantasy © 2025 - Tutti i diritti riservati
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const cart = [];
 
-    function addToCart(name, price) {
-      cart.push({ name, price });
-      updateCart();
+    const products = [
+      {
+        name: "Cleric Valorosa",
+        price: 13,
+        img: "https://titan-forge.com/clerics/516-human-female-cleric.jpg",
+        description:
+          "Paladina devota alla dea della guarigione, brandisce un martello di luce sacra e scudo incantato. Ideale per ruoli da supporto e combattente resistente.",
+      },
+      {
+        name: "Druido del Bosco",
+        price: 14,
+        img: "https://titan-forge.com/druids/642-human-male-druid.jpg",
+        description:
+          "Misterioso guardiano della foresta, controlla le forze naturali. Può evocare creature selvatiche, curare, e manipolare il terreno.",
+      },
+      {
+        name: "Strega delle Ombre",
+        price: 12,
+        img: "https://brother-vinni.com/cdn/shop/files/witch-miniature-fantasy-miniature-for-dnd-d-d-and-other-tabletop-rpg.jpg",
+        description:
+          "Incantatrice sinistra proveniente dalle Terre Oscure, esperta in illusioni, maledizioni e necromanzia leggera.",
+      },
+      {
+        name: "Nano del Martello",
+        price: 11,
+        img: "https://titan-forge.com/dwarves/1017-dwarf-hammer-warrior.jpg",
+        description:
+          "Guerriero corazzato con lunga barba intrecciata, usa un martello da guerra runico. Perfetto per attacchi frontali e difesa.",
+      },
+      {
+        name: "Elfo Arcere",
+        price: 13,
+        img: "https://titan-forge.com/elves/182-elf-archer.jpg",
+        description:
+          "Abile tiratore scelto con arco lungo, rapido e silenzioso, capace di colpire da grandi distanze con precisione letale.",
+      },
+      {
+        name: "Paladino Sacro",
+        price: 15,
+        img: "https://titan-forge.com/paladins/223-holy-paladin.jpg",
+        description:
+          "Cavaliere della luce, protettore del bene e dell’ordine, dotato di armatura scintillante e spada sacra.",
+      },
+    ];
+
+    const cardsContainer = document.getElementById("miniature-cards");
+    const cartItemsContainer = document.getElementById("cart-items");
+    const cartTotalElement = document.getElementById("cart-total");
+    const checkoutForm = document.getElementById("checkout-form");
+    const checkoutMessage = document.getElementById("checkout-message");
+    const modalsContainer = document.getElementById("modals-container");
+
+    // Funzione per creare e aggiungere i modali dei prodotti
+    function createProductModals() {
+      modalsContainer.innerHTML = "";
+      products.forEach((product, index) => {
+        const modal = document.createElement("div");
+        modal.classList.add("modal", "fade");
+        modal.id = `productModal${index}`;
+        modal.tabIndex = -1;
+        modal.setAttribute("aria-labelledby", `productModalLabel${index}`);
+        modal.setAttribute("aria-hidden", "true");
+        modal.innerHTML = `
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="productModalLabel${index}">${product.name}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+              </div>
+              <div class="modal-body d-flex flex-column flex-md-row align-items-center gap-4">
+                <img src="${product.img}" alt="${product.name}" style="max-height: 300px; border: 2px solid #8b5c2c; border-radius: 5px; object-fit: cover;" />
+                <div>
+                  <p>${product.description}</p>
+                  <p class="fw-bold fs-5">Prezzo: €${product.price.toFixed(2)}</p>
+                  <button class="btn btn-primary w-100 add-to-cart-modal" data-index="${index}">Aggiungi al carrello</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        modalsContainer.appendChild(modal);
+      });
     }
 
+    // Mostra sempre tutte le miniature con collegamenti per aprire i modali
+    function renderProducts(list) {
+      cardsContainer.innerHTML = "";
+      list.forEach((product, index) => {
+        const card = document.createElement("div");
+        card.classList.add("col");
+        card.innerHTML = `
+          <div class="card h-100">
+            <img src="${product.img}" class="card-img-top open-modal" alt="${product.name}" data-bs-toggle="modal" data-bs-target="#productModal${index}" />
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title open-modal" data-bs-toggle="modal" data-bs-target="#productModal${index}">${product.name}</h5>
+              <p class="card-text flex-grow-1">${product.description}</p>
+              <div>
+                <p class="card-text fw-bold">€${product.price.toFixed(2)}</p>
+                <button class="btn btn-primary w-100 add-to-cart" data-index="${index}">Aggiungi al carrello</button>
+              </div>
+            </div>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    // Ordina la lista in base alla selezione
+    function sortProducts(criteria) {
+      let sorted = [...products];
+      switch (criteria) {
+        case "priceAsc":
+          sorted.sort((a, b) => a.price - b.price);
+          break;
+        case "priceDesc":
+          sorted.sort((a, b) => b.price - a.price);
+          break;
+        case "nameAsc":
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case "nameDesc":
+          sorted.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+      }
+      renderProducts(sorted);
+    }
+
+    // Aggiorna il carrello (lista + totale)
     function updateCart() {
-      const cartList = document.getElementById('cart-list');
-      const totalDisplay = document.getElementById('total');
-      cartList.innerHTML = '';
+      cartItemsContainer.innerHTML = "";
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `<li class="list-group-item">Il carrello è vuoto.</li>`;
+        cartTotalElement.textContent = "0.00";
+        return;
+      }
 
       let total = 0;
-      cart.forEach((item) => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} - €${item.price.toFixed(2)}`;
-        cartList.appendChild(li);
+      cart.forEach((item, idx) => {
         total += item.price;
+        const li = document.createElement("li");
+        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+        li.innerHTML = `
+          ${item.name}
+          <div>
+            <span class="me-3 fw-bold">€${item.price.toFixed(2)}</span>
+            <button class="btn btn-sm btn-danger remove-item" data-index="${idx}">Rimuovi</button>
+          </div>
+        `;
+        cartItemsContainer.appendChild(li);
       });
+      cartTotalElement.textContent = total.toFixed(2);
 
-      totalDisplay.textContent = total.toFixed(2);
+      // Aggiungo event listener ai pulsanti rimuovi
+      const removeButtons = document.querySelectorAll(".remove-item");
+      removeButtons.forEach(button =>
+        button.addEventListener("click", (e) => {
+          const i = parseInt(e.target.dataset.index);
+          if (!isNaN(i)) {
+            cart.splice(i, 1);
+            updateCart();
+          }
+        })
+      );
     }
+
+    // Aggiungi prodotto al carrello da lista
+    cardsContainer.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-to-cart")) {
+        const idx = parseInt(e.target.dataset.index);
+        if (!isNaN(idx)) {
+          cart.push(products[idx]);
+          updateCart();
+        }
+      }
+      // Aggiungi al carrello dal modal
+      if (e.target.classList.contains("add-to-cart-modal")) {
+        const idx = parseInt(e.target.dataset.index);
+        if (!isNaN(idx)) {
+          cart.push(products[idx]);
+          updateCart();
+          // Chiudo il modal
+          const modalId = `productModal${idx}`;
+          const modalElement = document.getElementById(modalId);
+          const modalInstance = bootstrap.Modal.getInstance(modalElement);
+          modalInstance.hide();
+        }
+      }
+    });
+
+    // Sorting select listener
+    document.getElementById("sortSelect").addEventListener("change", (e) => {
+      if (e.target.value === "default") {
+        renderProducts(products);
+      } else {
+        sortProducts(e.target.value);
+      }
+    });
+
+    // Checkout form submit
+    checkoutForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (cart.length === 0) {
+        checkoutMessage.innerHTML = `<div class="alert alert-danger">Il carrello è vuoto. Aggiungi almeno un prodotto prima di procedere.</div>`;
+        return;
+      }
+      checkoutMessage.innerHTML = `<div class="alert alert-success">Grazie per il tuo ordine! Riceverai una conferma via email.</div>`;
+      cart.length = 0; // svuota carrello
+      updateCart();
+      checkoutForm.reset();
+      // Chiudo il modal dopo qualche secondo
+      setTimeout(() => {
+        const checkoutModal = document.getElementById("checkoutModal");
+        const modalInstance = bootstrap.Modal.getInstance(checkoutModal);
+        if (modalInstance) modalInstance.hide();
+        checkoutMessage.innerHTML = "";
+      }, 3000);
+    });
+
+    // Inizializzazione
+    createProductModals();
+    renderProducts(products);
+    updateCart();
   </script>
 </body>
 </html>
