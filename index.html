@@ -29,38 +29,6 @@
       font-weight: bold;
     }
 
-    .navbar-logo {
-      height: 40px;
-      margin-right: 10px;
-    }
-
-    footer {
-      background-color: #4b2e83;
-      color: #fdf6e3;
-      padding: 1rem;
-      text-align: center;
-      font-style: italic;
-    }
-
-    .card {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: transform 0.3s, box-shadow 0.3s;
-      background-color: #fffaf0;
-      border: 2px solid #c6a664;
-      cursor: pointer;
-    }
-
-    .card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-    }
-
-    h2 {
-      border-top: 4px double #8b5c2c;
-      padding-top: 10px;
-      text-shadow: 1px 1px #f4f1eb;
-    }
-
     .btn-primary {
       background-color: #6f42c1;
       border: none;
@@ -90,14 +58,6 @@
 
     .alert {
       margin-top: 1rem;
-    }
-
-    /* Stile per il tasto checkout in fondo */
-    #checkout-button {
-      display: block;
-      width: 100%;
-      max-width: 300px;
-      margin: 2rem auto;
     }
   </style>
 </head>
@@ -147,11 +107,6 @@
     <h4>Totale: €<span id="cart-total">0.00</span></h4>
   </div>
 
-  <!-- Bottone checkout in fondo pagina -->
-  <div class="container">
-    <button id="checkout-button" class="btn btn-success">Vai al Checkout</button>
-  </div>
-
   <!-- Modal Checkout -->
   <div
     class="modal fade"
@@ -175,15 +130,51 @@
           <form id="checkout-form">
             <div class="mb-3">
               <label class="form-label">Nome</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="nome" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Cognome</label>
+              <input type="text" class="form-control" name="cognome" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Indirizzo</label>
-              <input type="text" class="form-control" required />
+              <input type="text" class="form-control" name="indirizzo" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Carta di Credito</label>
-              <input type="text" class="form-control" required />
+              <label class="form-label">Numero Carta di Credito</label>
+              <input
+                type="text"
+                class="form-control"
+                name="numeroCarta"
+                pattern="\d{13,19}"
+                title="Inserisci un numero di carta valido (13-19 cifre)"
+                maxlength="19"
+                required
+              />
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Data Scadenza</label>
+                <input
+                  type="month"
+                  class="form-control"
+                  name="scadenzaCarta"
+                  id="scadenzaCarta"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">CVV</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="cvv"
+                  pattern="\d{3,4}"
+                  title="Inserisci un CVV valido (3 o 4 cifre)"
+                  maxlength="4"
+                  required
+                />
+              </div>
             </div>
             <div class="form-check mb-3">
               <input
@@ -192,9 +183,9 @@
                 id="accettaTermini"
                 required
               />
-              <label class="form-check-label" for="accettaTermini"
-                >Accetto i <a href="#">termini e condizioni</a></label
-              >
+              <label class="form-check-label" for="accettaTermini">
+                Accetto i <a href="#">termini e condizioni</a>
+              </label>
             </div>
             <button type="submit" class="btn btn-success w-100">Completa Ordine</button>
           </form>
@@ -204,12 +195,11 @@
     </div>
   </div>
 
-  <!-- Container modali dinamici prodotti -->
-  <div id="modals-container"></div>
-
   <footer class="mt-5">
     Miniature Fantasy © 2025 - Tutti i diritti riservati
   </footer>
+
+  <div id="modals-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
@@ -254,160 +244,134 @@
       {
         name: "Paladino Sacro",
         price: 15,
-        img: "https://titan-forge.com/paladins/223-holy-paladin.jpg",
+        img: "https://titan-forge.com/paladins/788-paladin.jpg",
         description:
-          "Cavaliere della luce, protettore del bene e dell’ordine, dotato di armatura scintillante e spada sacra.",
+          "Difensore della giustizia con armatura lucente e spada incantata, possiede poteri curativi e abilità di combattimento corpo a corpo.",
       },
     ];
 
-    const cardsContainer = document.getElementById("miniature-cards");
-    const cartItemsContainer = document.getElementById("cart-items");
-    const cartTotalElement = document.getElementById("cart-total");
-    const checkoutForm = document.getElementById("checkout-form");
-    const checkoutMessage = document.getElementById("checkout-message");
-    const modalsContainer = document.getElementById("modals-container");
+    function createCard(product, index) {
+      const card = document.createElement("div");
+      card.className = "card shadow-sm";
+      card.style.border = "2px solid #8b5c2c";
 
-    // Funzione per creare i popup modali prodotti
-    function createProductModals() {
-      modalsContainer.innerHTML = "";
-      products.forEach((product, index) => {
-        const modal = document.createElement("div");
-        modal.classList.add("modal", "fade");
-        modal.id = "productModal" + index;
-        modal.tabIndex = -1;
-        modal.setAttribute("aria-hidden", "true");
-        modal.innerHTML = `
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-warning">
-                <h5 class="modal-title">${product.name}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-              </div>
-              <div class="modal-body text-center">
-                <img src="${product.img}" alt="${product.name}" class="img-fluid mb-3" style="max-height: 300px; object-fit: contain;" />
-                <p>${product.description}</p>
-                <p class="fw-bold">Prezzo: €${product.price.toFixed(2)}</p>
-                <button class="btn btn-primary" data-index="${index}" id="modal-add-to-cart-${index}">Aggiungi al Carrello</button>
-              </div>
-            </div>
-          </div>
-        `;
-        modalsContainer.appendChild(modal);
+      card.innerHTML = `
+        <img src="${product.img}" class="card-img-top" alt="${product.name}" />
+        <div class="card-body">
+          <h5 class="card-title">${product.name}</h5>
+          <p class="card-text">${product.description}</p>
+          <p class="card-text fw-bold">Prezzo: €${product.price.toFixed(2)}</p>
+          <button class="btn btn-primary w-100" data-index="${index}">Aggiungi al carrello</button>
+        </div>
+      `;
+
+      card.querySelector("button").addEventListener("click", () => {
+        cart.push(product);
+        updateCart();
       });
-    }
 
-    // Mostra sempre tutte le miniature con apertura popup modale
-    function renderProducts(list) {
-      cardsContainer.innerHTML = "";
-      list.forEach((product, index) => {
-        const card = document.createElement("div");
-        card.classList.add("col");
-        card.innerHTML = `
-          <div class="card h-100" data-bs-toggle="modal" data-bs-target="#productModal${index}">
-            <img src="${product.img}" class="card-img-top" alt="${product.name}" />
-            <div class="card-body">
-              <h5 class="card-title">${product.name}</h5>
-              <p class="card-text">€${product.price.toFixed(2)}</p>
-            </div>
-          </div>
-        `;
-        cardsContainer.appendChild(card);
+      // Aggiungo popup info prodotto cliccando sull'immagine
+      card.querySelector("img").style.cursor = "pointer";
+      card.querySelector("img").addEventListener("click", () => {
+        alert(`${product.name}\n\n${product.description}\nPrezzo: €${product.price.toFixed(2)}`);
       });
+
+      return card;
     }
 
-    function addToCart(index) {
-      cart.push(products[index]);
-      renderCart();
-      // Chiudi il modale
-      const modalEl = document.getElementById("productModal" + index);
-      const modal = bootstrap.Modal.getInstance(modalEl);
-      if (modal) modal.hide();
-    }
-
-    function renderCart() {
-      cartItemsContainer.innerHTML = "";
-      let total = 0;
-      cart.forEach((item, i) => {
-        total += item.price;
+    function updateCart() {
+      const cartItems = document.getElementById("cart-items");
+      cartItems.innerHTML = "";
+      cart.forEach((item, index) => {
         const li = document.createElement("li");
-        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
         li.innerHTML = `
-          ${item.name} - €${item.price.toFixed(2)}
-          <button class="btn btn-danger btn-sm" data-index="${i}" aria-label="Rimuovi dal carrello">&times;</button>
+          <div>
+            <strong>${item.name}</strong> - €${item.price.toFixed(2)}
+          </div>
+          <button class="btn btn-danger btn-sm" data-index="${index}">Rimuovi</button>
         `;
-        cartItemsContainer.appendChild(li);
-      });
-      cartTotalElement.textContent = total.toFixed(2);
-      // Aggiungo listener per rimuovere elemento carrello
-      document.querySelectorAll("#cart-items button").forEach(btn => {
-        btn.addEventListener("click", e => {
-          const idx = e.target.getAttribute("data-index");
-          cart.splice(idx, 1);
-          renderCart();
+        li.querySelector("button").addEventListener("click", () => {
+          cart.splice(index, 1);
+          updateCart();
         });
+        cartItems.appendChild(li);
       });
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById("cart-total").textContent = total.toFixed(2);
     }
 
-    // Ordina la lista in base al valore selezionato
-    function sortProducts(criteria) {
-      let sorted = [...products];
-      switch (criteria) {
-        case "priceAsc":
-          sorted.sort((a, b) => a.price - b.price);
-          break;
-        case "priceDesc":
-          sorted.sort((a, b) => b.price - a.price);
-          break;
-        case "nameAsc":
-          sorted.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case "nameDesc":
-          sorted.sort((a, b) => b.name.localeCompare(a.name));
-          break;
+    // Ordinamento prodotti
+    document.getElementById("sortSelect").addEventListener("change", (e) => {
+      const sortType = e.target.value;
+      let sortedProducts = [...products];
+      if (sortType === "priceAsc") {
+        sortedProducts.sort((a, b) => a.price - b.price);
+      } else if (sortType === "priceDesc") {
+        sortedProducts.sort((a, b) => b.price - a.price);
+      } else if (sortType === "nameAsc") {
+        sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortType === "nameDesc") {
+        sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
       }
-      return sorted;
-    }
+      loadProducts(sortedProducts);
+    });
 
-    // Inizializza pagina
-    function init() {
-      createProductModals();
-      renderProducts(products);
-      renderCart();
-
-      // Collego pulsanti "Aggiungi al carrello" dentro i modali
-      products.forEach((_, index) => {
-        document
-          .getElementById("modal-add-to-cart-" + index)
-          .addEventListener("click", () => addToCart(index));
-      });
-
-      document.getElementById("sortSelect").addEventListener("change", e => {
-        const sorted = sortProducts(e.target.value);
-        renderProducts(sorted);
-      });
-
-      document.getElementById("checkout-button").addEventListener("click", () => {
-        if (cart.length === 0) {
-          alert("Il carrello è vuoto!");
-          return;
-        }
-        // Apri modal checkout
-        const checkoutModal = new bootstrap.Modal(document.getElementById("checkoutModal"));
-        checkoutModal.show();
-      });
-
-      checkoutForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        if (cart.length === 0) {
-          alert("Il carrello è vuoto!");
-          return;
-        }
-        checkoutMessage.innerHTML = '<div class="alert alert-success mt-3">Ordine completato! Grazie per il tuo acquisto.</div>';
-        cart.length = 0;
-        renderCart();
-        checkoutForm.reset();
+    function loadProducts(productList) {
+      const container = document.getElementById("miniature-cards");
+      container.innerHTML = "";
+      productList.forEach((product, index) => {
+        container.appendChild(createCard(product, index));
       });
     }
+
+    // Validazione data scadenza carta (non accetta date passate)
+    const checkoutForm = document.getElementById("checkout-form");
+    const scadenzaInput = document.getElementById("scadenzaCarta");
+
+    function setMinMonth() {
+      const now = new Date();
+      const year = now.getFullYear();
+      let month = now.getMonth() + 1;
+      if (month < 10) month = "0" + month;
+      scadenzaInput.min = `${year}-${month}`;
+    }
+    setMinMonth();
+
+    checkoutForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(checkoutForm);
+      const expDate = formData.get("scadenzaCarta");
+      const today = new Date();
+      const [year, month] = expDate.split("-");
+      const exp = new Date(year, month - 1);
+
+      if (exp < new Date(today.getFullYear(), today.getMonth())) {
+        alert("La data di scadenza della carta non può essere nel passato.");
+        return;
+      }
+
+      if (cart.length === 0) {
+        alert("Il carrello è vuoto!");
+        return;
+      }
+
+      // Qui potresti inviare i dati al server, per ora solo messaggio conferma
+      alert("Ordine completato con successo!\nGrazie per il tuo acquisto.");
+      cart.length = 0;
+      updateCart();
+      checkoutForm.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById("checkoutModal"));
+      modal.hide();
+    });
+
+    // Carico inizialmente i prodotti
+    loadProducts(products);
+    updateCart();
+  </script>
+</body>
+</html>
 
     window.onload = init;
   </script>
