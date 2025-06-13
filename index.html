@@ -36,10 +36,7 @@
       font-weight: bold;
     }
 
-    .navbar-logo {
-      height: 40px;
-      margin-right: 10px;
-    }
+    /* Rimossa la classe .navbar-logo perché il logo non c'è più */
 
     footer {
       background-color: #4b2e83;
@@ -114,7 +111,7 @@
 <body>
   <nav class="navbar navbar-expand-lg">
     <div class="container d-flex align-items-center">
-      <img src="https://cdn.pixabay.com/photo/2014/04/02/14/10/shield-307214_960_720.png" alt="Logo Fantasy" class="navbar-logo" />
+      <!-- Logo rimosso -->
       <a class="navbar-brand" href="#">Miniature Fantasy</a>
       <button
         class="navbar-toggler"
@@ -320,11 +317,11 @@
           <div class="card h-100">
             <img src="${product.img}" class="card-img-top open-modal" alt="${product.name}" data-bs-toggle="modal" data-bs-target="#productModal${index}" />
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title open-modal" data-bs-toggle="modal" data-bs-target="#productModal${index}">${product.name}</h5>
-              <p class="card-text flex-grow-1">${product.description}</p>
-              <div>
-                <p class="card-text fw-bold">€${product.price.toFixed(2)}</p>
-                <button class="btn btn-primary w-100 add-to-cart" data-index="${index}">Aggiungi al carrello</button>
+              <h5 class="card-title open-modal" data-bs-toggle="modal" data-bs-target="#productModal${index}" style="color:#4b2e83;">${product.name}</h5>
+              <p class="card-text">${product.description.substring(0, 75)}...</p>
+              <div class="mt-auto d-flex justify-content-between align-items-center">
+                <span class="fw-bold">€${product.price.toFixed(2)}</span>
+                <button class="btn btn-primary add-to-cart" data-index="${index}">Aggiungi</button>
               </div>
             </div>
           </div>
@@ -333,7 +330,24 @@
       });
     }
 
-    // Ordina la lista in base alla selezione
+    // Aggiorna la visualizzazione del carrello
+    function updateCart() {
+      cartItemsContainer.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, idx) => {
+        total += item.price;
+        const li = document.createElement("li");
+        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+        li.innerHTML = `
+          ${item.name} <span>€${item.price.toFixed(2)}</span>
+          <button class="btn btn-danger btn-sm remove-from-cart" data-index="${idx}">&times;</button>
+        `;
+        cartItemsContainer.appendChild(li);
+      });
+      cartTotalElement.textContent = total.toFixed(2);
+    }
+
+    // Ordinamento prodotti
     function sortProducts(criteria) {
       let sorted = [...products];
       switch (criteria) {
@@ -349,49 +363,15 @@
         case "nameDesc":
           sorted.sort((a, b) => b.name.localeCompare(a.name));
           break;
+        default:
+          sorted = products;
       }
       renderProducts(sorted);
     }
 
-    // Aggiorna il carrello (lista + totale)
-    function updateCart() {
-      cartItemsContainer.innerHTML = "";
-      if (cart.length === 0) {
-        cartItemsContainer.innerHTML = `<li class="list-group-item">Il carrello è vuoto.</li>`;
-        cartTotalElement.textContent = "0.00";
-        return;
-      }
+    // Event listener
 
-      let total = 0;
-      cart.forEach((item, idx) => {
-        total += item.price;
-        const li = document.createElement("li");
-        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
-        li.innerHTML = `
-          ${item.name}
-          <div>
-            <span class="me-3 fw-bold">€${item.price.toFixed(2)}</span>
-            <button class="btn btn-sm btn-danger remove-item" data-index="${idx}">Rimuovi</button>
-          </div>
-        `;
-        cartItemsContainer.appendChild(li);
-      });
-      cartTotalElement.textContent = total.toFixed(2);
-
-      // Aggiungo event listener ai pulsanti rimuovi
-      const removeButtons = document.querySelectorAll(".remove-item");
-      removeButtons.forEach(button =>
-        button.addEventListener("click", (e) => {
-          const i = parseInt(e.target.dataset.index);
-          if (!isNaN(i)) {
-            cart.splice(i, 1);
-            updateCart();
-          }
-        })
-      );
-    }
-
-    // Aggiungi prodotto al carrello da lista
+    // Aggiungi al carrello dai bottoni card
     cardsContainer.addEventListener("click", (e) => {
       if (e.target.classList.contains("add-to-cart")) {
         const idx = parseInt(e.target.dataset.index);
@@ -400,7 +380,21 @@
           updateCart();
         }
       }
-      // Aggiungi al carrello dal modal
+    });
+
+    // Rimuovi dal carrello
+    cartItemsContainer.addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove-from-cart")) {
+        const idx = parseInt(e.target.dataset.index);
+        if (!isNaN(idx)) {
+          cart.splice(idx, 1);
+          updateCart();
+        }
+      }
+    });
+
+    // Aggiungi al carrello dal modal
+    modalsContainer.addEventListener("click", (e) => {
       if (e.target.classList.contains("add-to-cart-modal")) {
         const idx = parseInt(e.target.dataset.index);
         if (!isNaN(idx)) {
