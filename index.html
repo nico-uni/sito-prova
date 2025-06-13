@@ -11,19 +11,12 @@
       background-color: #f4efe3;
       font-family: 'Garamond', serif;
       color: #3b2f2f;
-      position: relative;
-      padding-bottom: 80px; /* spazio per il bottone checkout fisso */
     }
 
     .card img {
       height: 200px;
       object-fit: cover;
       border: 2px solid #8b5c2c;
-      cursor: pointer;
-    }
-
-    .card-title {
-      cursor: pointer;
     }
 
     .navbar {
@@ -36,7 +29,10 @@
       font-weight: bold;
     }
 
-    /* Rimossa la classe .navbar-logo perché il logo non c'è più */
+    .navbar-logo {
+      height: 40px;
+      margin-right: 10px;
+    }
 
     footer {
       background-color: #4b2e83;
@@ -94,25 +90,11 @@
     .alert {
       margin-top: 1rem;
     }
-
-    /* Bottone checkout fisso in fondo */
-    #fixed-checkout-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1055; /* sopra modali */
-      border-radius: 50px;
-      padding: 12px 24px;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
   </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg">
     <div class="container d-flex align-items-center">
-      <!-- Logo rimosso -->
-      <a class="navbar-brand" href="#">Miniature Fantasy</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -207,17 +189,11 @@
     </div>
   </div>
 
-  <!-- Contenitore modali dinamici per i prodotti -->
-  <div id="modals-container"></div>
-
-  <!-- Bottone checkout fisso -->
-  <button id="fixed-checkout-btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkoutModal">
-    Vai al Checkout
-  </button>
-
   <footer class="mt-5">
     Miniature Fantasy © 2025 - Tutti i diritti riservati
   </footer>
+
+  <div id="modals-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
@@ -273,175 +249,100 @@
     const cartTotalElement = document.getElementById("cart-total");
     const checkoutForm = document.getElementById("checkout-form");
     const checkoutMessage = document.getElementById("checkout-message");
-    const modalsContainer = document.getElementById("modals-container");
+    const sortSelect = document.getElementById("sortSelect");
 
-    // Funzione per creare e aggiungere i modali dei prodotti
-    function createProductModals() {
-      modalsContainer.innerHTML = "";
-      products.forEach((product, index) => {
-        const modal = document.createElement("div");
-        modal.classList.add("modal", "fade");
-        modal.id = `productModal${index}`;
-        modal.tabIndex = -1;
-        modal.setAttribute("aria-labelledby", `productModalLabel${index}`);
-        modal.setAttribute("aria-hidden", "true");
-        modal.innerHTML = `
-          <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-              <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="productModalLabel${index}">${product.name}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
-              </div>
-              <div class="modal-body d-flex flex-column flex-md-row align-items-center gap-4">
-                <img src="${product.img}" alt="${product.name}" style="max-height: 300px; border: 2px solid #8b5c2c; border-radius: 5px; object-fit: cover;" />
-                <div>
-                  <p>${product.description}</p>
-                  <p class="fw-bold fs-5">Prezzo: €${product.price.toFixed(2)}</p>
-                  <button class="btn btn-primary w-100 add-to-cart-modal" data-index="${index}">Aggiungi al carrello</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        modalsContainer.appendChild(modal);
-      });
-    }
-
-    // Mostra sempre tutte le miniature con collegamenti per aprire i modali
-    function renderProducts(list) {
+    function renderProducts(productsToRender) {
       cardsContainer.innerHTML = "";
-      list.forEach((product, index) => {
+      productsToRender.forEach((product, index) => {
         const card = document.createElement("div");
-        card.classList.add("col");
+        card.className = "col";
         card.innerHTML = `
           <div class="card h-100">
-            <img src="${product.img}" class="card-img-top open-modal" alt="${product.name}" data-bs-toggle="modal" data-bs-target="#productModal${index}" />
+            <img src="${product.img}" class="card-img-top" alt="${product.name}" />
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title open-modal" data-bs-toggle="modal" data-bs-target="#productModal${index}" style="color:#4b2e83;">${product.name}</h5>
-              <p class="card-text">${product.description.substring(0, 75)}...</p>
-              <div class="mt-auto d-flex justify-content-between align-items-center">
-                <span class="fw-bold">€${product.price.toFixed(2)}</span>
-                <button class="btn btn-primary add-to-cart" data-index="${index}">Aggiungi</button>
-              </div>
+              <h5 class="card-title">${product.name}</h5>
+              <p class="card-text">${product.description}</p>
+              <p class="card-text fw-bold mt-auto">Prezzo: €${product.price.toFixed(2)}</p>
+              <button class="btn btn-primary mt-2" data-index="${index}">Aggiungi al Carrello</button>
             </div>
           </div>
         `;
         cardsContainer.appendChild(card);
       });
+
+      // Aggiungi event listener ai bottoni Aggiungi
+      document.querySelectorAll(".btn-primary").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const idx = e.target.getAttribute("data-index");
+          addToCart(productsToRender[idx]);
+        });
+      });
     }
 
-    // Aggiorna la visualizzazione del carrello
-    function updateCart() {
+    function addToCart(product) {
+      cart.push(product);
+      renderCart();
+    }
+
+    function renderCart() {
       cartItemsContainer.innerHTML = "";
       let total = 0;
-      cart.forEach((item, idx) => {
+      cart.forEach((item, i) => {
         total += item.price;
         const li = document.createElement("li");
-        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
         li.innerHTML = `
-          ${item.name} <span>€${item.price.toFixed(2)}</span>
-          <button class="btn btn-danger btn-sm remove-from-cart" data-index="${idx}">&times;</button>
+          ${item.name} - €${item.price.toFixed(2)}
+          <button class="btn btn-danger btn-sm" data-index="${i}">Rimuovi</button>
         `;
         cartItemsContainer.appendChild(li);
       });
       cartTotalElement.textContent = total.toFixed(2);
-    }
 
-    // Ordinamento prodotti
-    function sortProducts(criteria) {
-      let sorted = [...products];
-      switch (criteria) {
-        case "priceAsc":
-          sorted.sort((a, b) => a.price - b.price);
-          break;
-        case "priceDesc":
-          sorted.sort((a, b) => b.price - a.price);
-          break;
-        case "nameAsc":
-          sorted.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case "nameDesc":
-          sorted.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        default:
-          sorted = products;
-      }
-      renderProducts(sorted);
-    }
-
-    // Event listener
-
-    // Aggiungi al carrello dai bottoni card
-    cardsContainer.addEventListener("click", (e) => {
-      if (e.target.classList.contains("add-to-cart")) {
-        const idx = parseInt(e.target.dataset.index);
-        if (!isNaN(idx)) {
-          cart.push(products[idx]);
-          updateCart();
-        }
-      }
-    });
-
-    // Rimuovi dal carrello
-    cartItemsContainer.addEventListener("click", (e) => {
-      if (e.target.classList.contains("remove-from-cart")) {
-        const idx = parseInt(e.target.dataset.index);
-        if (!isNaN(idx)) {
+      document.querySelectorAll(".btn-danger").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const idx = e.target.getAttribute("data-index");
           cart.splice(idx, 1);
-          updateCart();
-        }
-      }
-    });
+          renderCart();
+        });
+      });
+    }
 
-    // Aggiungi al carrello dal modal
-    modalsContainer.addEventListener("click", (e) => {
-      if (e.target.classList.contains("add-to-cart-modal")) {
-        const idx = parseInt(e.target.dataset.index);
-        if (!isNaN(idx)) {
-          cart.push(products[idx]);
-          updateCart();
-          // Chiudo il modal
-          const modalId = `productModal${idx}`;
-          const modalElement = document.getElementById(modalId);
-          const modalInstance = bootstrap.Modal.getInstance(modalElement);
-          modalInstance.hide();
-        }
-      }
-    });
-
-    // Sorting select listener
-    document.getElementById("sortSelect").addEventListener("change", (e) => {
-      if (e.target.value === "default") {
-        renderProducts(products);
-      } else {
-        sortProducts(e.target.value);
-      }
-    });
-
-    // Checkout form submit
     checkoutForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      if (cart.length === 0) {
-        checkoutMessage.innerHTML = `<div class="alert alert-danger">Il carrello è vuoto. Aggiungi almeno un prodotto prima di procedere.</div>`;
-        return;
-      }
-      checkoutMessage.innerHTML = `<div class="alert alert-success">Grazie per il tuo ordine! Riceverai una conferma via email.</div>`;
-      cart.length = 0; // svuota carrello
-      updateCart();
+      checkoutMessage.innerHTML = `<div class="alert alert-success" role="alert">Ordine completato con successo! Grazie per il tuo acquisto.</div>`;
+      cart.length = 0;
+      renderCart();
       checkoutForm.reset();
-      // Chiudo il modal dopo qualche secondo
-      setTimeout(() => {
-        const checkoutModal = document.getElementById("checkoutModal");
-        const modalInstance = bootstrap.Modal.getInstance(checkoutModal);
-        if (modalInstance) modalInstance.hide();
-        checkoutMessage.innerHTML = "";
-      }, 3000);
+      const modal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+      modal.hide();
     });
 
-    // Inizializzazione
-    createProductModals();
+    sortSelect.addEventListener("change", () => {
+      let sortedProducts = [...products];
+      switch (sortSelect.value) {
+        case "priceAsc":
+          sortedProducts.sort((a, b) => a.price - b.price);
+          break;
+        case "priceDesc":
+          sortedProducts.sort((a, b) => b.price - a.price);
+          break;
+        case "nameAsc":
+          sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case "nameDesc":
+          sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        default:
+          sortedProducts = [...products];
+      }
+      renderProducts(sortedProducts);
+    });
+
+    // Render iniziale
     renderProducts(products);
-    updateCart();
+    renderCart();
   </script>
 </body>
 </html>
+
